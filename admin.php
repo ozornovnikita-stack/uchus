@@ -93,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
     $stmt = $con->prepare("UPDATE request SET status = ? WHERE id = ?");
     $stmt->bind_param('si', $status, $request_id);
     if ($stmt->execute()) {
-        // Редирект с параметром updated=1, чтобы показать уведомление
         $get_params = $_GET;
         unset($get_params['page']);
         $get_params['updated'] = 1;
@@ -113,12 +112,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* ===== ЦВЕТА ИЗ РУКОВОДСТВА ===== */
         :root {
             --blue-base: #007bff;
             --blue-dark: #0d47a1;
-            --gray-bg: #ced4da;
-            --gray-light: #dee2e6;
+            --silver: #c0c0c0;
+            --silver-light: #e0e0e0;
             --white: #ffffff;
             --text-dark: #212529;
         }
@@ -133,31 +131,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, var(--blue-base) 0%, var(--blue-dark) 100%);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        /* ШАПКА */
+        /* ШАПКА (как на других страницах) */
         .site-header {
             background: rgba(13, 71, 161, 0.95);
             padding: 15px 0;
-            border-bottom: 1px solid var(--gray-light);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
 
         .logo {
-            color: var(--white);
+            color: var(--silver);
             font-size: 24px;
             font-weight: 700;
             text-decoration: none;
+            text-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            color: var(--silver-light);
+            text-shadow: 0 0 15px rgba(192, 192, 192, 0.8);
         }
 
         .nav-buttons {
@@ -168,9 +176,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
 
         .nav-buttons a {
             padding: 10px 20px;
-            border: 2px solid var(--white);
-            border-radius: 30px;
-            color: var(--white);
+            border: 2px solid var(--silver);
+            border-radius: 25px;
+            color: var(--silver);
             text-decoration: none;
             transition: all 0.3s ease;
             font-weight: 500;
@@ -180,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
         }
 
         .nav-buttons a:hover {
-            background-color: var(--white);
+            background-color: var(--silver);
             color: var(--blue-dark);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
@@ -194,13 +202,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             overflow: hidden;
+            flex: 1;
         }
 
         /* ФИЛЬТРЫ */
         .filters-bar {
             padding: 20px 30px;
             background: var(--white);
-            border-bottom: 1px solid var(--gray-light);
+            border-bottom: 1px solid var(--silver-light);
             display: flex;
             flex-wrap: wrap;
             gap: 15px;
@@ -220,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
         .filter-group select {
             width: 100%;
             padding: 10px 12px;
-            border: 2px solid var(--gray-light);
+            border: 2px solid var(--silver-light);
             border-radius: 30px;
             font-size: 14px;
             font-family: 'Inter', sans-serif;
@@ -243,8 +252,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             align-items: center;
             gap: 12px;
             padding: 12px 30px;
-            background: var(--gray-bg);
-            border-bottom: 1px solid var(--gray-light);
+            background: var(--silver-light);
+            border-bottom: 1px solid #eee;
         }
         .sort-label {
             font-weight: 600;
@@ -257,7 +266,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             border-radius: 30px;
             text-decoration: none;
             color: var(--blue-base);
-            border: 1px solid var(--gray-light);
+            border: 1px solid var(--silver);
             font-size: 13px;
             transition: 0.2s;
         }
@@ -294,7 +303,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             margin-bottom: 5px;
         }
         .request-id {
-            background: var(--gray-light);
+            background: var(--silver-light);
             padding: 5px 15px;
             border-radius: 20px;
             font-weight: bold;
@@ -308,7 +317,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             text-transform: uppercase;
         }
         .status-new {
-            background: var(--gray-light);
+            background: var(--silver-light);
             color: var(--text-dark);
         }
         .status-in-progress {
@@ -316,7 +325,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             color: var(--white);
         }
         .status-completed {
-            background: var(--gray-bg);
+            background: var(--silver-light);
             color: var(--blue-dark);
         }
 
@@ -328,7 +337,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
         }
         .detail-item {
             padding: 10px;
-            background: var(--gray-light);
+            background: var(--silver-light);
             border-radius: 12px;
         }
         .detail-label {
@@ -346,7 +355,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
         .status-form {
             margin-top: 20px;
             padding-top: 20px;
-            border-top: 1px dashed var(--gray-light);
+            border-top: 1px dashed var(--silver-light);
         }
         .form-group {
             margin-bottom: 15px;
@@ -360,7 +369,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
         .form-select {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid var(--gray-light);
+            border: 2px solid var(--silver-light);
             border-radius: 12px;
             font-size: 14px;
             font-family: 'Inter', sans-serif;
@@ -392,7 +401,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
         }
         .page-link {
             padding: 8px 16px;
-            border: 1px solid var(--gray-light);
+            border: 1px solid var(--silver-light);
             border-radius: 30px;
             text-decoration: none;
             color: var(--blue-base);
@@ -406,11 +415,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             border-color: var(--blue-base);
         }
 
-        /* ПУСТОЕ СОСТОЯНИЕ */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
-            background: var(--gray-light);
+            background: var(--silver-light);
             border-radius: 16px;
         }
         .empty-state i {
@@ -423,7 +431,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             margin-bottom: 10px;
         }
 
-        /* УВЕДОМЛЕНИЕ */
         .notification {
             position: fixed;
             top: 20px;
@@ -445,7 +452,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             to { opacity: 0; visibility: hidden; }
         }
 
-        /* ФУТЕР */
         .site-footer {
             background: rgba(13, 71, 161, 0.95);
             color: var(--white);
@@ -453,12 +459,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['request_id'])) {
             padding: 20px 0;
             margin-top: 20px;
             font-size: 14px;
-            border-top: 1px solid var(--gray-light);
+            border-top: 1px solid var(--silver-light);
         }
 
-        /* АДАПТИВНОСТЬ */
         @media (max-width: 768px) {
             body { padding: 0; }
+            .nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .nav-buttons {
+                justify-content: center;
+                width: 100%;
+            }
+            .nav-buttons a {
+                margin-left: 0;
+                text-align: center;
+                flex: 1 1 auto;
+            }
             .container { margin: 10px; border-radius: 12px; }
             .filters-bar { flex-direction: column; align-items: stretch; padding: 15px 20px; }
             .sort-panel { flex-direction: column; align-items: stretch; padding: 12px 20px; }
