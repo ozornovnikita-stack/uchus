@@ -58,16 +58,29 @@ $is_admin = isset($_SESSION['admin']) && $_SESSION['admin'];
       padding: 0 20px;
     }
 
-    .logo {
+    .logo-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      text-decoration: none;
+    }
+
+    .logo-img {
+      height: 50px;
+      width: auto;
+      display: block;
+    }
+
+    .logo-text {
       color: var(--silver);
-      font-size: 24px;
+      font-size: 28px;
       font-weight: bold;
       text-decoration: none;
       text-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
       transition: all 0.3s ease;
     }
 
-    .logo:hover {
+    .logo-text:hover {
       color: var(--silver-light);
       text-shadow: 0 0 15px rgba(192, 192, 192, 0.8);
     }
@@ -242,6 +255,12 @@ $is_admin = isset($_SESSION['admin']) && $_SESSION['admin'];
         text-align: center;
         flex: 1 1 auto;
       }
+      .logo-img {
+        height: 40px;
+      }
+      .logo-text {
+        font-size: 24px;
+      }
       .mySlides img {
         height: 300px;
       }
@@ -267,7 +286,9 @@ $is_admin = isset($_SESSION['admin']) && $_SESSION['admin'];
 <!-- Шапка сайта -->
 <header class="header">
   <div class="nav">
-    <a href="index.php" class="logo">Учусь.РФ</a>
+    <a href="index.php" class="logo-wrapper">
+      <span class="logo-text">Учусь.РФ</span>
+    </a>
     <div class="nav-buttons">
       <?php if (!isset($_SESSION['user_id'])): ?>
         <a href="login.php" class="btn-login">Войти</a>
@@ -298,7 +319,6 @@ $is_admin = isset($_SESSION['admin']) && $_SESSION['admin'];
     <img src="2.png" alt="Слайд 3">
     <div class="text">Курсы по охране труда</div>
   </div>
-  <!-- Четвёртый слайд -->
   <div class="mySlides fade">
     <img src="hero.png" alt="Слайд 4">
     <div class="text">Индивидуальный подход</div>

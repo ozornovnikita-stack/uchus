@@ -32,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $errors[] = 'Логин обязателен для заполнения';
     } elseif (!preg_match('/^[a-zA-Z0-9]{6,}$/', $login)) {
         $errors[] = 'Логин должен содержать только латиницу и цифры, минимум 6 символов';
+    } elseif (!preg_match('/[a-zA-Z]/', $login) || !preg_match('/[0-9]/', $login)) {
+        $errors[] = 'Логин должен содержать и буквы, и цифры';
     }
     
     if (empty($password)) {
@@ -61,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (empty($errors)) {
         include('db.php');
         
-        // Проверяем, существует ли соединение
         if (!$con) {
             $error = true;
             $error_message = 'Ошибка подключения к базе данных';
@@ -101,15 +102,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             
             if (!$error) {
-                // Для безопасности рекомендуется хешировать пароль
-                // $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-                // Но для совместимости с существующими данными (пароли в открытом виде) оставим как есть
-                $hashed_password = $password;
-                
                 $sql = "INSERT INTO users (login, password, fullname, phone, email) VALUES (?, ?, ?, ?, ?)";
                 $stmt = $con->prepare($sql);
                 if ($stmt) {
-                    $stmt->bind_param("sssss", $login, $hashed_password, $fullname, $phone, $email);
+                    $stmt->bind_param("sssss", $login, $password, $fullname, $phone, $email);
                     if ($stmt->execute()) {
                         $success = true;
                         header('refresh:2;url=login.php');
@@ -451,7 +447,7 @@ $is_admin = isset($_SESSION['admin']) && $_SESSION['admin'];
             <input type="text" id="login" name="login" 
                    value="<?php echo htmlspecialchars($form_data['login'] ?? ''); ?>"
                    placeholder="ivan123" required>
-            <span class="hint">Только латиница и цифры, минимум 6 символов</span>
+            <span class="hint">Только латиница и цифры, обязательно содержать и буквы, и цифры, минимум 6 символов</span>
         </div>
 
         <div class="form-group">
@@ -575,6 +571,25 @@ $is_admin = isset($_SESSION['admin']) && $_SESSION['admin'];
         }
 
         form.addEventListener('submit', function(e) {
+            // Валидация логина на клиенте
+            const login = document.getElementById('login');
+            const loginPattern = /^[a-zA-Z0-9]{6,}$/;
+            const hasLetters = /[a-zA-Z]/;
+            const hasDigits = /[0-9]/;
+            
+            if (!loginPattern.test(login.value)) {
+                e.preventDefault();
+                alert('Логин должен содержать только латиницу и цифры, минимум 6 символов');
+                login.style.borderColor = '#dc3545';
+                return false;
+            }
+            if (!hasLetters.test(login.value) || !hasDigits.test(login.value)) {
+                e.preventDefault();
+                alert('Логин должен содержать и буквы, и цифры');
+                login.style.borderColor = '#dc3545';
+                return false;
+            }
+            
             if (password.value !== confirmPassword.value) {
                 e.preventDefault();
                 alert('Пароли не совпадают');
@@ -594,14 +609,7 @@ $is_admin = isset($_SESSION['admin']) && $_SESSION['admin'];
                 phoneInput.style.borderColor = '#dc3545';
                 return false;
             }
-            const login = document.getElementById('login');
-            const loginPattern = /^[a-zA-Z0-9]{6,}$/;
-            if (!loginPattern.test(login.value)) {
-                e.preventDefault();
-                alert('Логин должен содержать только латиницу и цифры, минимум 6 символов');
-                login.style.borderColor = '#dc3545';
-                return false;
-            }
+            
             submitBtn.disabled = true;
             submitBtn.textContent = 'Регистрация...';
         });
